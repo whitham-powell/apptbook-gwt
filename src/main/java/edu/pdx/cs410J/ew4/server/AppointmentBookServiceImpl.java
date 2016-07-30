@@ -3,12 +3,12 @@ package edu.pdx.cs410J.ew4.server;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import edu.pdx.cs410J.ew4.client.Appointment;
 import edu.pdx.cs410J.ew4.client.AppointmentBook;
-import edu.pdx.cs410J.ew4.client.PingService;
+import edu.pdx.cs410J.ew4.client.AppointmentBookService;
 
 /**
  * The server-side implementation of the division service
  */
-public class PingServiceImpl extends RemoteServiceServlet implements PingService
+public class AppointmentBookServiceImpl extends RemoteServiceServlet implements AppointmentBookService
 {
   // same kind of code as a in project 4 servlet
   @Override
