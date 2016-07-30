@@ -12,9 +12,11 @@ public class PingServiceImpl extends RemoteServiceServlet implements PingService
 {
   // same kind of code as a in project 4 servlet
   @Override
-  public AppointmentBook ping() {
+  public AppointmentBook createAppointmentBook(int numberOfAppointments) {
     AppointmentBook book = new AppointmentBook();
-    book.addAppointment(new Appointment());
+    for (int i = 0; i < numberOfAppointments; i++) {
+      book.addAppointment(new Appointment());
+    }
     return book;
   }
 
