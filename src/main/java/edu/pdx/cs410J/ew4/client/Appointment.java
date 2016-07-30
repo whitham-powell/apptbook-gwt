@@ -6,6 +6,8 @@ import java.util.Date;
 
 public class Appointment extends AbstractAppointment
 {
+    //TODO use DateTimeFormat.getFormat("yyyy/MM/dd hh:mm a"); to format date
+
     @Override
     public String getBeginTimeString()
     {

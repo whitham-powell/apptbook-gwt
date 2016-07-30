@@ -10,6 +10,7 @@ import edu.pdx.cs410J.ew4.client.PingService;
  */
 public class PingServiceImpl extends RemoteServiceServlet implements PingService
 {
+  // same kind of code as a in project 4 servlet
   @Override
   public AppointmentBook ping() {
     AppointmentBook book = new AppointmentBook();
