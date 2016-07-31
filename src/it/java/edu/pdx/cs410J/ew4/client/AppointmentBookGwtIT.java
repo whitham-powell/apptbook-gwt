@@ -32,7 +32,7 @@ public class AppointmentBookGwtIT extends GWTTestCase {
       public void run() {
         String message = alerter.getMessage();
         assertNotNull(message);
-        assertTrue(message, message.contains("My Owner's appointment book with 4 appointments"));
+        assertTrue(message, message.contains("< default owner >'s appointment book with 4 appointments"));
         finishTest();
       }
     };

@@ -12,8 +12,8 @@ import static junit.framework.TestCase.assertEquals;
 
 public class PingServiceSyncProxyIT extends HttpRequestHelper {
 
-  private final int httpPort = Integer.getInteger("http.port", 8080);
-  private String webAppUrl = "http://localhost:" + httpPort + "/apptbook";
+  private final int httpPort = Integer.getInteger("http.port", 8888);
+  private String webAppUrl = "http://localhost:" + httpPort /*+ "/apptbook"*/;
 
   @Test
   public void gwtWebApplicationIsRunning() throws IOException {
@@ -29,7 +29,7 @@ public class PingServiceSyncProxyIT extends HttpRequestHelper {
     AppointmentBookService service = SyncProxy.createSync(AppointmentBookService.class);
     int numberOfAppointments = 5;
     AppointmentBook apptbook = service.createAppointmentBook(numberOfAppointments);
-    assertEquals("My Owner", apptbook.getOwnerName());
+    assertEquals("< default owner >", apptbook.getOwnerName());
     assertEquals(numberOfAppointments, apptbook.getAppointments().size());
   }
 

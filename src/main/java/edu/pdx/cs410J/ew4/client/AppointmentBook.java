@@ -7,20 +7,28 @@ import java.util.Collection;
 
 public class AppointmentBook extends AbstractAppointmentBook<Appointment> {
 
-  private Collection<Appointment> appts = new ArrayList<>();
+  private Collection<Appointment> appointments = new ArrayList<>();
+  private String ownerName = "< default owner >";
+
+  public AppointmentBook() {
+  }
+
+  public AppointmentBook(String ownerName) {
+    this.ownerName = ownerName;
+  }
 
   @Override
   public String getOwnerName() {
-    return "My Owner";
+    return this.ownerName;
   }
 
   @Override
   public Collection<Appointment> getAppointments() {
-    return this.appts;
+    return this.appointments;
   }
 
   @Override
-  public void addAppointment(Appointment appt) {
-    this.appts.add(appt);
+  public void addAppointment(Appointment appointment) {
+    this.appointments.add(appointment);
   }
 }

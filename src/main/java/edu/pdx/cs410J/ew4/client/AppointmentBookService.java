@@ -15,4 +15,13 @@ public interface AppointmentBookService extends RemoteService {
    */
   public AppointmentBook createAppointmentBook(int numberOfAppointments);
 
+  public AppointmentBook createAppointmentBook(String ownerName);
+
+  public AppointmentBook addAppointmentToBook(String ownerName,
+                                              String description,
+                                              String beginDateTimeString,
+                                              String endDateTimeString) throws Exception;
+
+  public AppointmentBook getAppointments(String owner);
+
 }
