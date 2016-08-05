@@ -57,11 +57,11 @@ public class AppointmentBookServiceImpl extends RemoteServiceServlet implements 
       try {
         endDateTime = df.parse(endDateTimeString);
       } catch (ParseException e) {
-        throw new Exception("Server received bad formatting of date and/or time: \n " + " endTime: " + endDateTimeString);
+        throw new Exception("Server received bad formatting of date and/or time: \n " + " \tendTime " + endDateTimeString);
       }
     } catch (ParseException e) {
       throw new Exception("Server received bad formatting of date and/or time: \n " +
-              "beginTime: " + beginDateTimeString + " ");
+              " \tbeginTime " + beginDateTimeString + " ");
     }
 
 
@@ -78,6 +78,29 @@ public class AppointmentBookServiceImpl extends RemoteServiceServlet implements 
       book = new AppointmentBook(owner);
     }
 
+    return book;
+  }
+
+  @Override
+  public AppointmentBook addAppointmentToBook(String owner, String description, Date beginDateTime, Date endDateTime) {
+    AppointmentBook book = this.appointmentBooks.get(owner);
+
+    if (book == null) {
+      book = new AppointmentBook(owner);
+    }
+
+    book.addAppointment(new Appointment(description, beginDateTime, endDateTime));
+
+    this.appointmentBooks.put(owner, book);
+    return this.appointmentBooks.get(owner);
+  }
+
+  @Override
+  public AppointmentBook searchAppointments(String owner, Date searchAfterDateValue, Date searchBeforeDateValue) throws Exception {
+    AppointmentBook book = this.appointmentBooks.get(owner);
+    if (book == null) {
+      throw new Exception("No appointment book found for owner");
+    }
     return book;
   }
 
