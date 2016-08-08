@@ -11,8 +11,14 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
+/**
+ * The type Appointment book service impl test.
+ */
 public class AppointmentBookServiceImplTest {
 
+  /**
+   * Service returns expected appointment book.
+   */
   @Test
   public void serviceReturnsExpectedAppointmentBook() {
     AppointmentBookServiceImpl service = new AppointmentBookServiceImpl();
@@ -21,6 +27,9 @@ public class AppointmentBookServiceImplTest {
     assertThat(testBook.getAppointments().size(), equalTo(numberOfAppointments));
   }
 
+  /**
+   * Service creates and stores empty appointment book into hash map.
+   */
   @Test
   public void serviceCreatesAndStoresEmptyAppointmentBookIntoHashMap() {
     AppointmentBookServiceImpl service = new AppointmentBookServiceImpl();
@@ -30,6 +39,11 @@ public class AppointmentBookServiceImplTest {
     assertThat(testBook.getOwnerName(), is(testOwner));
   }
 
+  /**
+   * Service adds appointments to appointment book belonging to owner.
+   *
+   * @throws Exception the exception
+   */
   @Test
   public void serviceAddsAppointmentsToAppointmentBookBelongingToOwner() throws Exception {
     AppointmentBookServiceImpl service = new AppointmentBookServiceImpl();
@@ -49,6 +63,11 @@ public class AppointmentBookServiceImplTest {
 
   }
 
+  /**
+   * Service can add multiple appointments belonging to owner.
+   *
+   * @throws Exception the exception
+   */
   @Test
   public void serviceCanAddMultipleAppointmentsBelongingToOwner() throws Exception {
     AppointmentBookServiceImpl service = new AppointmentBookServiceImpl();

@@ -55,86 +55,6 @@ public class AppointmentBookGwt implements EntryPoint {
   @VisibleForTesting
   AppointmentBookGwt(Alerter alerter) {
     this.alerter = alerter;
-
-    addWidgets();
-  }
-
-  private void addWidgets() {
-
-  }
-
-  private void listAppointmentsForOwner(String bookOwner, int tabIndex) {
-    AppointmentBookServiceAsync async = GWT.create(AppointmentBookService.class);
-    async.getAppointments(bookOwner, new AsyncCallback<AppointmentBook>() {
-      @Override
-      public void onFailure(Throwable throwable) {
-        alert(throwable);
-      }
-
-      @Override
-      public void onSuccess(AppointmentBook appointmentBook) {
-        makeAppointmentTable(appointmentBook);
-      }
-    });
-  }
-
-  private void makeAppointmentTable(AppointmentBook appointmentBook) {
-    if (appointmentBook.getAppointments().size() == 0) {
-      Window.alert(appointmentBook.getOwnerName() + " has an empty AppointmentBook, try another name.");
-      return;
-    }
-    appointmentsTable.setText(0, 0, "Description");
-    appointmentsTable.setText(0, 1, "Duration");
-    appointmentsTable.setText(0, 2, "Start");
-    appointmentsTable.setText(0, 3, "End");
-    appointmentsTable.setText(0, 4, "Delete");
-
-    // Add appointments to the table
-    Collection<Appointment> fromServer = appointmentBook.getAppointments();
-    for (Appointment toDisplay : fromServer) {
-      int row = appointmentsTable.getRowCount();
-
-      appointmentsTable.setText(row, 0, toDisplay.getDescription());
-      appointmentsTable.setText(row, 1, toDisplay.getDuration());
-      appointmentsTable.setText(row, 2, toDisplay.getBeginTimeString());
-      appointmentsTable.setText(row, 3, toDisplay.getEndTimeString());
-
-      Button removeAppointment = new Button("x");
-      removeAppointment.addClickHandler(new ClickHandler() {
-        public void onClick(ClickEvent event) {
-
-          int rowIndex = appointmentsTable.getCellForEvent(event).getRowIndex();
-          appointmentsTable.removeRow(rowIndex);
-
-          if (appointmentsTable.getRowCount() == 1) {
-            appointmentsTable.removeRow(0);
-          }
-          //TODO make button remove appointment from database with confirmation?
-        }
-      });
-
-      appointmentsTable.setWidget(row, 4, removeAppointment);
-    }
-  }
-
-
-  private void displayNewlyAddedAppointment(AppointmentBook book) {
-    ArrayList<Appointment> appointmentList = new ArrayList<>();
-    appointmentList.addAll(book.getAppointments());
-
-    Appointment newlyAdded = appointmentList.get(book.getAppointments().size() - 1);
-    StringBuilder sb = new StringBuilder()
-            .append("Added new appointment to ")
-            .append(book.getOwnerName())
-            .append("'s appointment book")
-            .append(newlyAdded.toString());
-
-    this.alerter.alert(sb.toString());
-  }
-
-
-  private void alert(Throwable ex) {
-    alerter.alert(ex.getMessage());
   }
 
   @Override
@@ -151,115 +71,6 @@ public class AppointmentBookGwt implements EntryPoint {
 
     rootPanel.add(mainTabPanel);
 
-  }
-
-  private VerticalPanel makeSearchAppointmentPanel() {
-
-    // Appointment Searching Widgets
-    searchingBookOwner = new TextBox();
-    Button searchAppointmentsButton = new Button("Search");
-    searchAppointmentsButton.addClickHandler(new ClickHandler() {
-      @Override
-      public void onClick(ClickEvent clickEvent) {
-        AppointmentBookServiceAsync async = GWT.create(AppointmentBookService.class);
-        String owner = searchingBookOwner.getText();
-
-        async.searchAppointments(owner, searchAfterDate.getValue(), searchBeforeDate.getValue(), new AsyncCallback<AppointmentBook>() {
-          @Override
-          public void onFailure(Throwable caught) {
-            alert(caught);
-          }
-
-          @Override
-          public void onSuccess(AppointmentBook appointmentBook) {
-
-            //TODO table Headings wont show up
-            searchResultsTable.setText(0, 0, "Description");
-            searchResultsTable.setText(0, 1, "Duration");
-            searchResultsTable.setText(0, 2, "Start");
-            searchResultsTable.setText(0, 3, "End");
-
-            // Add appointments to the table
-            Collection<Appointment> fromServer = appointmentBook.appointmentsByRange(searchAfterDate.getValue(), searchBeforeDate.getValue());
-            for (Appointment toDisplay : fromServer) {
-              int row = appointmentsTable.getRowCount();
-              searchResultsTable.setText(row, 0, toDisplay.getDescription());
-              searchResultsTable.setText(row, 1, toDisplay.getDuration());
-              searchResultsTable.setText(row, 2, toDisplay.getBeginTimeString());
-              searchResultsTable.setText(row, 3, toDisplay.getEndTimeString());
-            }
-          }
-        });
-      }
-    });
-
-    // Begin Main Vertical Panel
-    VerticalPanel searchAppointmentVP = new VerticalPanel();
-    searchAppointmentVP.add(new Label("Owner's Name: "));
-    searchAppointmentVP.add(searchingBookOwner);
-
-    HorizontalPanel startHP = makeDateTimePanel(new Label("After: "), searchAfterDate);
-    HorizontalPanel endHP = makeDateTimePanel(new Label("Before:"), searchBeforeDate);
-
-    searchAppointmentVP.add(startHP);
-    searchAppointmentVP.add(endHP);
-    searchAppointmentVP.add(searchAppointmentsButton);
-    searchAppointmentVP.add(searchResultsTable);
-    return searchAppointmentVP;
-  }
-
-  private HorizontalPanel makeDateTimePanel(Label w, DateBox dateBox) {
-    // Start range
-    dateBox.setFormat(dateBoxDateTimeFormat);
-    dateBox.setValue(new Date());
-
-    HorizontalPanel hp = new HorizontalPanel();
-    hp.add(w);
-    hp.add(dateBox);
-
-    // Start times list box
-    ListBox lbHours = new ListBox();
-    lbHours.addItem(String.valueOf(12), String.valueOf(12));
-    for (int i = 1; i < 12; i++) {
-      String time = NumberFormat.getFormat("00").format(i);
-      lbHours.addItem(time, time);
-    }
-    hp.add(lbHours);
-    hp.add(new Label(":"));
-
-    ListBox lbMinutes = new ListBox();
-    for (int i = 0; i < 60; i = i + 15) {
-      String time = NumberFormat.getFormat("00").format(i);
-      lbMinutes.addItem(time, time);
-    }
-    hp.add(lbMinutes);
-
-    // Start AMPM list box
-    ListBox ampm = new ListBox();
-    ampm.addItem("AM", "AM");
-    ampm.addItem("PM", "PM");
-    hp.add(ampm);
-    return hp;
-  }
-
-  private DockPanel makeAppointmentListingDock() {
-    DockPanel makeAppointmentListingDock = new DockPanel();
-    makeAppointmentListingDock.add(new Label("Owner's Name"), DockPanel.NORTH);
-
-    // Appointment Listing
-    listingBookOwner = new TextBox();
-    listAppointmentsButton = new Button("List Appointments");
-    listAppointmentsButton.addClickHandler(new ClickHandler() {
-      @Override
-      public void onClick(ClickEvent clickEvent) {
-        listAppointmentsForOwner(listingBookOwner.getText(), listAppointmentsButton.getTabIndex());
-      }
-    });
-
-    makeAppointmentListingDock.add(listingBookOwner, DockPanel.CENTER);
-    makeAppointmentListingDock.add(listAppointmentsButton, DockPanel.EAST);
-    makeAppointmentListingDock.add(appointmentsTable, DockPanel.SOUTH);
-    return makeAppointmentListingDock;
   }
 
   private DockPanel makeNewAppointmentDock() {
@@ -325,6 +136,197 @@ public class AppointmentBookGwt implements EntryPoint {
                 displayNewlyAddedAppointment(book);
               }
             });
+  }
+
+  private void displayNewlyAddedAppointment(AppointmentBook book) {
+    ArrayList<Appointment> appointmentList = new ArrayList<>();
+    appointmentList.addAll(book.getAppointments());
+
+    Appointment newlyAdded = appointmentList.get(book.getAppointments().size() - 1);
+    String alertMsg = "Added new appointment to " +
+            book.getOwnerName() +
+            "'s appointment book" +
+            newlyAdded.toString();
+
+    this.alerter.alert(alertMsg);
+  }
+
+  private DockPanel makeAppointmentListingDock() {
+    DockPanel makeAppointmentListingDock = new DockPanel();
+    makeAppointmentListingDock.add(new Label("Owner's Name"), DockPanel.NORTH);
+
+    // Appointment Listing
+    listingBookOwner = new TextBox();
+    listAppointmentsButton = new Button("List Appointments");
+    listAppointmentsButton.addClickHandler(new ClickHandler() {
+      @Override
+      public void onClick(ClickEvent clickEvent) {
+        listAppointmentsForOwner(listingBookOwner.getText(), listAppointmentsButton.getTabIndex());
+      }
+    });
+
+    makeAppointmentListingDock.add(listingBookOwner, DockPanel.CENTER);
+    makeAppointmentListingDock.add(listAppointmentsButton, DockPanel.EAST);
+    makeAppointmentListingDock.add(appointmentsTable, DockPanel.SOUTH);
+    return makeAppointmentListingDock;
+  }
+
+
+  private void listAppointmentsForOwner(String bookOwner, int tabIndex) {
+    AppointmentBookServiceAsync async = GWT.create(AppointmentBookService.class);
+    async.getAppointments(bookOwner, new AsyncCallback<AppointmentBook>() {
+      @Override
+      public void onFailure(Throwable throwable) {
+        alert(throwable);
+      }
+
+      @Override
+      public void onSuccess(AppointmentBook appointmentBook) {
+        makeAppointmentListingTable(appointmentBook);
+      }
+    });
+  }
+
+  private void makeAppointmentListingTable(AppointmentBook appointmentBook) {
+    if (appointmentBook.getAppointments().size() == 0) {
+      Window.alert(appointmentBook.getOwnerName() + " has an empty AppointmentBook, try another name.");
+      return;
+    }
+
+    appointmentsTable.setText(0, 0, "Description");
+    appointmentsTable.setText(0, 1, "Duration");
+    appointmentsTable.setText(0, 2, "Start");
+    appointmentsTable.setText(0, 3, "End");
+    appointmentsTable.setText(0, 4, "Delete");
+
+    // Add appointments to the table
+    Collection<Appointment> fromServer = appointmentBook.getAppointments();
+    for (Appointment toDisplay : fromServer) {
+      int row = appointmentsTable.getRowCount();
+
+      appointmentsTable.setText(row, 0, toDisplay.getDescription());
+      appointmentsTable.setText(row, 1, toDisplay.getDuration());
+      appointmentsTable.setText(row, 2, toDisplay.getBeginTimeString());
+      appointmentsTable.setText(row, 3, toDisplay.getEndTimeString());
+
+      Button removeAppointment = new Button("x");
+      removeAppointment.addClickHandler(new ClickHandler() {
+        public void onClick(ClickEvent event) {
+
+          int rowIndex = appointmentsTable.getCellForEvent(event).getRowIndex();
+          appointmentsTable.removeRow(rowIndex);
+
+          if (appointmentsTable.getRowCount() == 1) {
+            appointmentsTable.removeRow(0);
+          }
+          //TODO make button remove appointment from database with confirmation?
+        }
+      });
+
+      appointmentsTable.setWidget(row, 4, removeAppointment);
+    }
+  }
+
+
+  private void alert(Throwable ex) {
+    alerter.alert(ex.getMessage());
+  }
+
+
+  private VerticalPanel makeSearchAppointmentPanel() {
+
+    // Appointment Searching Widgets
+    searchingBookOwner = new TextBox();
+    Button searchAppointmentsButton = new Button("Search");
+    searchAppointmentsButton.addClickHandler(new ClickHandler() {
+      @Override
+      public void onClick(ClickEvent clickEvent) {
+        displayRangeOfAppointmentsTable();
+      }
+    });
+
+    // Begin Main Vertical Panel
+    VerticalPanel searchAppointmentVP = new VerticalPanel();
+    searchAppointmentVP.add(new Label("Owner's Name: "));
+    searchAppointmentVP.add(searchingBookOwner);
+
+    HorizontalPanel startHP = makeDateTimePanel(new Label("After: "), searchAfterDate);
+    HorizontalPanel endHP = makeDateTimePanel(new Label("Before:"), searchBeforeDate);
+
+    searchAppointmentVP.add(startHP);
+    searchAppointmentVP.add(endHP);
+    searchAppointmentVP.add(searchAppointmentsButton);
+    searchAppointmentVP.add(searchResultsTable);
+    return searchAppointmentVP;
+  }
+
+  private void displayRangeOfAppointmentsTable() {
+    AppointmentBookServiceAsync async = GWT.create(AppointmentBookService.class);
+    String owner = searchingBookOwner.getText();
+    async.searchAppointments(owner, searchAfterDate.getValue(), searchBeforeDate.getValue(), new AsyncCallback<AppointmentBook>() {
+      @Override
+      public void onFailure(Throwable caught) {
+        alert(caught);
+      }
+
+      @Override
+      public void onSuccess(AppointmentBook appointmentBook) {
+        makeAppointmentResultsTable(appointmentBook);
+      }
+    });
+  }
+
+  private void makeAppointmentResultsTable(AppointmentBook appointmentBook) {
+    // Make table column headings
+    searchResultsTable.setText(0, 0, "Description");
+    searchResultsTable.setText(0, 1, "Duration");
+    searchResultsTable.setText(0, 2, "Start");
+    searchResultsTable.setText(0, 3, "End");
+
+    // Add appointments to the table
+    Collection<Appointment> fromServer = appointmentBook.appointmentsByRange(searchAfterDate.getValue(), searchBeforeDate.getValue());
+    for (Appointment toDisplay : fromServer) {
+      int row = searchResultsTable.getRowCount();
+      searchResultsTable.setText(row, 0, toDisplay.getDescription());
+      searchResultsTable.setText(row, 1, toDisplay.getDuration());
+      searchResultsTable.setText(row, 2, toDisplay.getBeginTimeString());
+      searchResultsTable.setText(row, 3, toDisplay.getEndTimeString());
+    }
+  }
+
+
+  private HorizontalPanel makeDateTimePanel(Label w, DateBox dateBox) {
+    // Start range
+    dateBox.setFormat(dateBoxDateTimeFormat);
+    dateBox.setValue(new Date());
+
+    HorizontalPanel hp = new HorizontalPanel();
+    hp.add(w);
+    hp.add(dateBox);
+
+    // Start times list box
+    ListBox lbHours = new ListBox();
+    lbHours.addItem(String.valueOf(12), String.valueOf(12));
+    for (int i = 1; i < 12; i++) {
+      String time = NumberFormat.getFormat("00").format(i);
+      lbHours.addItem(time, time);
+    }
+    hp.add(lbHours);
+    hp.add(new Label(":"));
+
+    ListBox lbMinutes = new ListBox();
+    for (int i = 0; i < 60; i = i + 15) {
+      String time = NumberFormat.getFormat("00").format(i);
+      lbMinutes.addItem(time, time);
+    }
+    hp.add(lbMinutes);
+
+    // Start AMPM list box
+    ListBox ampm = new ListBox();
+    ampm.addItem("AM", "AM");
+    ampm.addItem("PM", "PM");
+    hp.add(ampm);
+    return hp;
   }
 
 
