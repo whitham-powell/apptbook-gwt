@@ -1,0 +1,29 @@
+Elijah Whitham-Powell
+8/7/2016
+CS410J
+Project 5
+Plan of Attack
+
+    At first with this project I thought I would have to have separate Appointment and AppointmentBook classes for the
+server side of the code because I used some Date formatting, that I thought was required for my classes to function
+correctly. Since, the DateFormat that comes with the Java API does not or cannot be easily translated into Javascript by
+GWT my original plan was to have my classes from Project4 on the server, and be copied over(once filled with data from
+the server) to the client side version. This was not needed. Instead I found that I could parse strings into Dates with
+tools provided by GWT and any special logic could be handled by the AppointmentBooKService on the server. Since, my
+Appointment class already had a constructor that could take in Date objects, this allowed me to use the DateFormat
+object on the server side and throw along any ParseException that may occur via onFailure method of the Async object.
+
+    I wanted to make the RIA be as appealing and easy to use as I could. For example, to pick a Date a DateBox widget is
+provided to the user. This prevents having to worry about them inputting bad formatted dates (at least on accident). This
+widget uses an intuitive calendar popup common on nearly every web app that uses a user inputted date to function. I broke
+down the functionality of the service into 3 different tabular layouts. This clearly indicates what functionality the
+application can do. The user can create a new Appointment and add it to the server's HashMap of AppointmentBooks sorted
+by owner name.
+
+    When creating a new Appointment, if the owner is not already in the HashMap of books, a new AppointmentBook
+is created. Otherwise, the owner's book is found and that Appointment is added to it. For the listing tab, if no book can
+be found belonging to the supplied owner, then an alert message is displayed indicating that fact to the user. If a book
+is found, it displays a list of appointments in a FlexTable widget along with a button to delete the appointment if
+wanted. The search tab allows the user to find appointments between a supplied range of dates/times, the same DateBox
+and ListBox widgets were used as present in the new appointment tab. Also, like the appointment listings tab, if no book
+can be found for the provided owner, an alert message is sent indicating that to the user.
