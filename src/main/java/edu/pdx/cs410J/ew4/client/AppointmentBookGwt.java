@@ -107,7 +107,6 @@ public class AppointmentBookGwt implements EntryPoint {
     mainTabPanel.add(usageHTML, "Help");
     mainTabPanel.selectTab(0);
     rootPanel.add(mainTabPanel);
-
   }
 
   private DockPanel makeNewAppointmentDock() {
@@ -410,8 +409,6 @@ public class AppointmentBookGwt implements EntryPoint {
     hp.add(ampm);
     return hp;
   }
-
-  //TODO help and readme panel
 
   /**
    * The interface Alerter.
