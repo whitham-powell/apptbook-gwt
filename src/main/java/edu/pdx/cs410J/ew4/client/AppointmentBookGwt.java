@@ -20,6 +20,25 @@ import java.util.Date;
  * A basic GWT class that makes sure that we can send an appointment book back from the server
  */
 public class AppointmentBookGwt implements EntryPoint {
+  private static final String USAGE_TEXT_HTML = "<h1>Usage</h1>\n" +
+          "<ul>\n" +
+          "<li>The <em><strong>'New Appointment'</strong></em> tab is used to create a new appointment and add that appointment to the supplied owners book. If the owner does not already have an appointment book a new one is created and that appointment is then added.</li>\n" +
+          "<li>The <em><strong>'</strong><strong>Appointment Listing'</strong></em> tab is used to list all of the appointments in a supplied owners appointment book. A dialog box pops up if the owner is not found on the server. Otherwise, a table of appointments is generated and dispalyed. If there is an appointment you do not wish to view, there is a button with labeled an <strong>'X'</strong> to remove it from the table (note: this does not remove it from the server).</li>\n" +
+          "<li>The <em><strong>'Search Appointments'</strong></em> tab is used to find appointments within a range of dates and times. If the owner's book is on the server it will display appointments whose begin times are within the supplied range of dates/times. This will <strong>NOT</strong> exclude appointments that end after the range.</li>\n" +
+          "</ul>";
+  private static final String README_TEXT_HTML =
+          "<h1 style=\"text-align: center;\">CS410J Project 5</h1>\n" +
+                  "<h2 style=\"text-align: center;\">Creating a Rich Internet Application using GWT</h2>\n" +
+                  "<h3>Author:</h3>\n" +
+                  "<p>Elijah Whitham-Powell</p>\n" +
+                  "<h3>Date Completed:</h3>\n" +
+                  "<p>August 10th, 2016</p>\n" +
+                  "<h3>Description:</h3>\n" +
+                  "<p>This project is a RIA using GWT that creates an Appointment and adds it to an AppointmentBook based on the information " +
+                  "provided via the application. The user can create an appointment book upon creating a new appointment." +
+                  " Once the appointment book is created, the user can list all of the appointments for a supplied owner. " +
+                  "Also, a user can list only appointments in which start between two dates and times. " +
+                  "All of the appointment books are stored on the server and are stored by owner name.</p>";
   private final Alerter alerter;
   private final int descriptionWidth = 350;
   private final ListBox searchAfterHour = new ListBox();
@@ -46,6 +65,7 @@ public class AppointmentBookGwt implements EntryPoint {
   private ListBox createAppointmentEndHour = new ListBox();
   private ListBox createAppointmentEndMinute = new ListBox();
   private ListBox createAppointmentEndAMPM = new ListBox();
+
 
   /**
    * Instantiates a new Appointment book gwt.
@@ -76,11 +96,17 @@ public class AppointmentBookGwt implements EntryPoint {
     VerticalPanel appointmentListingDock = makeAppointmentListingDock();
     VerticalPanel searchAppointmentVP = makeSearchAppointmentPanel();
 
+    HTMLPanel readmeHTML = new HTMLPanel(README_TEXT_HTML);
+
+    HTMLPanel usageHTML = new HTMLPanel(USAGE_TEXT_HTML);
+
     TabPanel mainTabPanel = new TabPanel();
+    mainTabPanel.add(readmeHTML, "Readme");
     mainTabPanel.add(newAppointmentDock, "New Appointment");
     mainTabPanel.add(appointmentListingDock, "Appointment Listing");
     mainTabPanel.add(searchAppointmentVP, "Search Appointments");
-
+    mainTabPanel.add(usageHTML, "Help");
+    mainTabPanel.selectTab(0);
     rootPanel.add(mainTabPanel);
 
   }
@@ -211,7 +237,6 @@ public class AppointmentBookGwt implements EntryPoint {
     return makeAppointmentListingDock;
   }
 
-
   private void listAppointmentsForOwner(String bookOwner) {
     AppointmentBookServiceAsync async = GWT.create(AppointmentBookService.class);
     async.getAppointments(bookOwner, new AsyncCallback<AppointmentBook>() {
@@ -265,16 +290,13 @@ public class AppointmentBookGwt implements EntryPoint {
           }
         }
       });
-
       appointmentsTable.setWidget(row, 4, removeAppointment);
     }
   }
 
-
   private void alert(Throwable ex) {
     alerter.alert(ex.getMessage());
   }
-
 
   private VerticalPanel makeSearchAppointmentPanel() {
 
@@ -359,7 +381,6 @@ public class AppointmentBookGwt implements EntryPoint {
     }
   }
 
-
   private HorizontalPanel makeDateTimePanel(Label w, DateBox dateBox, ListBox hours, ListBox minutes, ListBox ampm) {
     // Start range
     dateBox.setFormat(dateBoxDateTimeFormat);
@@ -391,9 +412,7 @@ public class AppointmentBookGwt implements EntryPoint {
     return hp;
   }
 
-
   //TODO help and readme panel
-
 
   /**
    * The interface Alerter.
