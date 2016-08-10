@@ -22,6 +22,12 @@ import java.util.Date;
 public class AppointmentBookGwt implements EntryPoint {
   private final Alerter alerter;
   private final int descriptionWidth = 350;
+  private final ListBox searchAfterHour = new ListBox();
+  private final ListBox searchAfterMinute = new ListBox();
+  private final ListBox searchAfterAMPM = new ListBox();
+  private final ListBox searchBeforeHour = new ListBox();
+  private final ListBox searchBeforeMinute = new ListBox();
+  private final ListBox searchBeforeAMPM = new ListBox();
   private TextBox ownerNameBox;
   private TextArea descriptionArea;
   private DateBox createAppointmentStartDateTime = new DateBox();
@@ -278,6 +284,9 @@ public class AppointmentBookGwt implements EntryPoint {
     searchAppointmentsButton.addClickHandler(new ClickHandler() {
       @Override
       public void onClick(ClickEvent clickEvent) {
+        if (searchResultsTable.getRowCount() > 0) {
+          searchResultsTable.removeAllRows();
+        }
         displayRangeOfAppointmentsTable();
       }
     });
@@ -288,8 +297,8 @@ public class AppointmentBookGwt implements EntryPoint {
     searchAppointmentVP.add(searchingBookOwner);
 
     //TODO make search hours and minutes listbox data available as fields
-    HorizontalPanel startHP = makeDateTimePanel(new Label("After: "), searchAfterDate, new ListBox(), new ListBox(), new ListBox());
-    HorizontalPanel endHP = makeDateTimePanel(new Label("Before:"), searchBeforeDate, new ListBox(), new ListBox(), new ListBox());
+    HorizontalPanel startHP = makeDateTimePanel(new Label("After:"), searchAfterDate, searchAfterHour, searchAfterMinute, searchAfterAMPM);
+    HorizontalPanel endHP = makeDateTimePanel(new Label("Before:"), searchBeforeDate, searchBeforeHour, searchBeforeMinute, searchBeforeAMPM);
 
     searchAppointmentVP.add(startHP);
     searchAppointmentVP.add(endHP);
@@ -322,7 +331,24 @@ public class AppointmentBookGwt implements EntryPoint {
     searchResultsTable.setText(0, 3, "End");
 
     // Add appointments to the table
-    Collection<Appointment> fromServer = appointmentBook.appointmentsByRange(searchAfterDate.getValue(), searchBeforeDate.getValue());
+    Date afterThisDate = searchAfterDate.getValue();
+    Date beforeThisDate = searchBeforeDate.getValue();
+
+    String pattern = "MM/dd/yyyy";
+
+    String beginBuilder = DateTimeFormat.getFormat(pattern).format(afterThisDate) +
+            searchAfterHour.getSelectedValue() +
+            searchAfterMinute.getSelectedValue() +
+            searchAfterAMPM.getSelectedValue();
+    afterThisDate = DateTimeFormat.getFormat("MM/dd/yyyyhhmma").parseStrict(beginBuilder);
+
+    String endBuilder = DateTimeFormat.getFormat(pattern).format(beforeThisDate) +
+            searchBeforeHour.getSelectedValue() +
+            searchBeforeMinute.getSelectedValue() +
+            searchBeforeAMPM.getSelectedValue();
+    beforeThisDate = DateTimeFormat.getFormat("MM/dd/yyyyhhmma").parseStrict(endBuilder);
+
+    Collection<Appointment> fromServer = appointmentBook.appointmentsByRange(afterThisDate, beforeThisDate);
     for (Appointment toDisplay : fromServer) {
       int row = searchResultsTable.getRowCount();
       searchResultsTable.getCellFormatter().setWidth(row, 0, String.valueOf(descriptionWidth) + "px");
