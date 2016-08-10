@@ -296,7 +296,6 @@ public class AppointmentBookGwt implements EntryPoint {
     searchAppointmentVP.add(new Label("Owner's Name: "));
     searchAppointmentVP.add(searchingBookOwner);
 
-    //TODO make search hours and minutes listbox data available as fields
     HorizontalPanel startHP = makeDateTimePanel(new Label("After:"), searchAfterDate, searchAfterHour, searchAfterMinute, searchAfterAMPM);
     HorizontalPanel endHP = makeDateTimePanel(new Label("Before:"), searchBeforeDate, searchBeforeHour, searchBeforeMinute, searchBeforeAMPM);
 
@@ -395,7 +394,6 @@ public class AppointmentBookGwt implements EntryPoint {
 
   //TODO help and readme panel
 
-  //TODO delete or clear all appointment books
 
   /**
    * The interface Alerter.
