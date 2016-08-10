@@ -21,7 +21,7 @@ import java.util.Date;
  */
 public class AppointmentBookGwt implements EntryPoint {
   private final Alerter alerter;
-
+  private final int descriptionWidth = 350;
   private TextBox ownerNameBox;
   private TextArea descriptionArea;
   private DateBox createAppointmentStartDateTime = new DateBox();
@@ -67,7 +67,7 @@ public class AppointmentBookGwt implements EntryPoint {
   public void onModuleLoad() {
     RootPanel rootPanel = RootPanel.get();
     DockPanel newAppointmentDock = makeNewAppointmentDock();
-    DockPanel appointmentListingDock = makeAppointmentListingDock();
+    VerticalPanel appointmentListingDock = makeAppointmentListingDock();
     VerticalPanel searchAppointmentVP = makeSearchAppointmentPanel();
 
     TabPanel mainTabPanel = new TabPanel();
@@ -136,7 +136,9 @@ public class AppointmentBookGwt implements EntryPoint {
     String description = descriptionArea.getText();
     Date beginTime = createAppointmentStartDateTime.getValue();
     Date endTime = createAppointmentEndDateTime.getValue();
+
     String pattern = "MM/dd/yyyy";
+
     String beginBuilder = DateTimeFormat.getFormat(pattern).format(beginTime) +
             createAppointmentStartHour.getSelectedValue() +
             createAppointmentStartMinute.getSelectedValue() +
@@ -144,9 +146,9 @@ public class AppointmentBookGwt implements EntryPoint {
     beginTime = DateTimeFormat.getFormat("MM/dd/yyyyhhmma").parseStrict(beginBuilder);
 
     String endBuilder = DateTimeFormat.getFormat(pattern).format(endTime) +
-            createAppointmentStartHour.getSelectedValue() +
-            createAppointmentStartMinute.getSelectedValue() +
-            createAppointmentStartAMPM.getSelectedValue();
+            createAppointmentEndHour.getSelectedValue() +
+            createAppointmentEndMinute.getSelectedValue() +
+            createAppointmentEndAMPM.getSelectedValue();
     endTime = DateTimeFormat.getFormat("MM/dd/yyyyhhmma").parseStrict(endBuilder);
 
     async.addAppointmentToBook(
@@ -180,9 +182,9 @@ public class AppointmentBookGwt implements EntryPoint {
     this.alerter.alert(alertMsg);
   }
 
-  private DockPanel makeAppointmentListingDock() {
-    DockPanel makeAppointmentListingDock = new DockPanel();
-    makeAppointmentListingDock.add(new Label("Owner's Name"), DockPanel.NORTH);
+  private VerticalPanel makeAppointmentListingDock() {
+    VerticalPanel makeAppointmentListingDock = new VerticalPanel();
+    makeAppointmentListingDock.add(new Label("Owner's Name"));
 
     // Appointment Listing
     listingBookOwner = new TextBox();
@@ -191,20 +193,20 @@ public class AppointmentBookGwt implements EntryPoint {
       @Override
       public void onClick(ClickEvent clickEvent) {
         if (appointmentsTable.getRowCount() > 0) {
-          appointmentsTable = new FlexTable();
+          appointmentsTable.removeAllRows();
         }
-        listAppointmentsForOwner(listingBookOwner.getText(), listAppointmentsButton.getTabIndex());
+        listAppointmentsForOwner(listingBookOwner.getText());
       }
     });
 
-    makeAppointmentListingDock.add(listingBookOwner, DockPanel.CENTER);
-    makeAppointmentListingDock.add(listAppointmentsButton, DockPanel.EAST);
-    makeAppointmentListingDock.add(appointmentsTable, DockPanel.SOUTH);
+    makeAppointmentListingDock.add(listingBookOwner);
+    makeAppointmentListingDock.add(listAppointmentsButton);
+    makeAppointmentListingDock.add(appointmentsTable);
     return makeAppointmentListingDock;
   }
 
 
-  private void listAppointmentsForOwner(String bookOwner, int tabIndex) {
+  private void listAppointmentsForOwner(String bookOwner) {
     AppointmentBookServiceAsync async = GWT.create(AppointmentBookService.class);
     async.getAppointments(bookOwner, new AsyncCallback<AppointmentBook>() {
       @Override
@@ -233,10 +235,14 @@ public class AppointmentBookGwt implements EntryPoint {
 
     // Add appointments to the table
     Collection<Appointment> fromServer = appointmentBook.getSortedSet();
-    for (Appointment toDisplay : fromServer) {
+    for (final Appointment toDisplay : fromServer) {
       int row = appointmentsTable.getRowCount();
 
       appointmentsTable.setText(row, 0, toDisplay.getDescription());
+
+      appointmentsTable.getCellFormatter().setWidth(row, 0, String.valueOf(descriptionWidth) + "px");
+      appointmentsTable.getCellFormatter().setWordWrap(row, 0, true);
+
       appointmentsTable.setText(row, 1, toDisplay.getDuration());
       appointmentsTable.setText(row, 2, toDisplay.getBeginTimeString());
       appointmentsTable.setText(row, 3, toDisplay.getEndTimeString());
@@ -281,6 +287,7 @@ public class AppointmentBookGwt implements EntryPoint {
     searchAppointmentVP.add(new Label("Owner's Name: "));
     searchAppointmentVP.add(searchingBookOwner);
 
+    //TODO make search hours and minutes listbox data available as fields
     HorizontalPanel startHP = makeDateTimePanel(new Label("After: "), searchAfterDate, new ListBox(), new ListBox(), new ListBox());
     HorizontalPanel endHP = makeDateTimePanel(new Label("Before:"), searchBeforeDate, new ListBox(), new ListBox(), new ListBox());
 
@@ -318,6 +325,8 @@ public class AppointmentBookGwt implements EntryPoint {
     Collection<Appointment> fromServer = appointmentBook.appointmentsByRange(searchAfterDate.getValue(), searchBeforeDate.getValue());
     for (Appointment toDisplay : fromServer) {
       int row = searchResultsTable.getRowCount();
+      searchResultsTable.getCellFormatter().setWidth(row, 0, String.valueOf(descriptionWidth) + "px");
+      searchResultsTable.getCellFormatter().setWordWrap(row, 0, true);
       searchResultsTable.setText(row, 0, toDisplay.getDescription());
       searchResultsTable.setText(row, 1, toDisplay.getDuration());
       searchResultsTable.setText(row, 2, toDisplay.getBeginTimeString());
