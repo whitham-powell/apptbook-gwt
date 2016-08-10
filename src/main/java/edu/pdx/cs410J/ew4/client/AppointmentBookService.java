@@ -8,6 +8,7 @@ import java.util.Date;
 /**
  * A GWT remote service that returns a dummy appointment book
  */
+@SuppressWarnings("UnnecessaryInterfaceModifier")
 @RemoteServiceRelativePath("appointments")
 public interface AppointmentBookService extends RemoteService {
 

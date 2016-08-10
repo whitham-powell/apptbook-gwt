@@ -52,7 +52,6 @@ public class AppointmentBookGwt implements EntryPoint {
   private DateBox createAppointmentStartDateTime = new DateBox();
   private DateBox createAppointmentEndDateTime = new DateBox();
   private TextBox listingBookOwner;
-  private Button listAppointmentsButton;
   private FlexTable appointmentsTable = new FlexTable();
   private TextBox searchingBookOwner;
   private DateBox.DefaultFormat dateBoxDateTimeFormat = new DateBox.DefaultFormat(DateTimeFormat.getFormat("MM/dd/yyyy"));
@@ -220,7 +219,7 @@ public class AppointmentBookGwt implements EntryPoint {
 
     // Appointment Listing
     listingBookOwner = new TextBox();
-    listAppointmentsButton = new Button("List Appointments");
+    Button listAppointmentsButton = new Button("List Appointments");
     listAppointmentsButton.addClickHandler(new ClickHandler() {
       @Override
       public void onClick(ClickEvent clickEvent) {

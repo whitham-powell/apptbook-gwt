@@ -7,6 +7,7 @@ import java.util.Date;
 /**
  * The client-side interface to the createAppointmentBook service
  */
+@SuppressWarnings("WeakerAccess")
 public interface AppointmentBookServiceAsync {
 
   /**
