@@ -34,6 +34,12 @@ public class AppointmentBookGwt implements EntryPoint {
   private DateBox searchAfterDate = new DateBox();
   private DateBox searchBeforeDate = new DateBox();
   private FlexTable searchResultsTable = new FlexTable();
+  private ListBox createAppointmentStartHour = new ListBox();
+  private ListBox createAppointmentStartMinute = new ListBox();
+  private ListBox createAppointmentStartAMPM = new ListBox();
+  private ListBox createAppointmentEndHour = new ListBox();
+  private ListBox createAppointmentEndMinute = new ListBox();
+  private ListBox createAppointmentEndAMPM = new ListBox();
 
   /**
    * Instantiates a new Appointment book gwt.
@@ -93,8 +99,16 @@ public class AppointmentBookGwt implements EntryPoint {
     makeAppointmentDockDescription.add(descriptionArea, DockPanel.SOUTH);
 
     // Start and End Time Dock
-    HorizontalPanel startHP = makeDateTimePanel(new Label("Starts:"), createAppointmentStartDateTime);
-    HorizontalPanel endHP = makeDateTimePanel(new Label("Ends:"), createAppointmentEndDateTime);
+    HorizontalPanel startHP = makeDateTimePanel(new Label("Starts:"),
+            createAppointmentStartDateTime,
+            createAppointmentStartHour,
+            createAppointmentStartMinute,
+            createAppointmentStartAMPM);
+    HorizontalPanel endHP = makeDateTimePanel(new Label("Ends:"),
+            createAppointmentEndDateTime,
+            createAppointmentEndHour,
+            createAppointmentEndMinute,
+            createAppointmentEndAMPM);
 
     // Create Appointment Button
     Button createAppointmentButton = new Button("Create Appointment");
@@ -120,11 +134,26 @@ public class AppointmentBookGwt implements EntryPoint {
     AppointmentBookServiceAsync async = GWT.create(AppointmentBookService.class);
     String owner = ownerNameBox.getText();
     String description = descriptionArea.getText();
+    Date beginTime = createAppointmentStartDateTime.getValue();
+    Date endTime = createAppointmentEndDateTime.getValue();
+    String pattern = "MM/dd/yyyy";
+    String beginBuilder = DateTimeFormat.getFormat(pattern).format(beginTime) +
+            createAppointmentStartHour.getSelectedValue() +
+            createAppointmentStartMinute.getSelectedValue() +
+            createAppointmentStartAMPM.getSelectedValue();
+    beginTime = DateTimeFormat.getFormat("MM/dd/yyyyhhmma").parseStrict(beginBuilder);
+
+    String endBuilder = DateTimeFormat.getFormat(pattern).format(endTime) +
+            createAppointmentStartHour.getSelectedValue() +
+            createAppointmentStartMinute.getSelectedValue() +
+            createAppointmentStartAMPM.getSelectedValue();
+    endTime = DateTimeFormat.getFormat("MM/dd/yyyyhhmma").parseStrict(endBuilder);
+
     async.addAppointmentToBook(
             owner,
             description,
-            createAppointmentStartDateTime.getValue(),
-            createAppointmentEndDateTime.getValue(),
+            beginTime,
+            endTime,
             new AsyncCallback<AppointmentBook>() {
               @Override
               public void onFailure(Throwable caught) {
@@ -161,6 +190,9 @@ public class AppointmentBookGwt implements EntryPoint {
     listAppointmentsButton.addClickHandler(new ClickHandler() {
       @Override
       public void onClick(ClickEvent clickEvent) {
+        if (appointmentsTable.getRowCount() > 0) {
+          appointmentsTable = new FlexTable();
+        }
         listAppointmentsForOwner(listingBookOwner.getText(), listAppointmentsButton.getTabIndex());
       }
     });
@@ -200,7 +232,7 @@ public class AppointmentBookGwt implements EntryPoint {
     appointmentsTable.setText(0, 4, "Delete");
 
     // Add appointments to the table
-    Collection<Appointment> fromServer = appointmentBook.getAppointments();
+    Collection<Appointment> fromServer = appointmentBook.getSortedSet();
     for (Appointment toDisplay : fromServer) {
       int row = appointmentsTable.getRowCount();
 
@@ -219,7 +251,6 @@ public class AppointmentBookGwt implements EntryPoint {
           if (appointmentsTable.getRowCount() == 1) {
             appointmentsTable.removeRow(0);
           }
-          //TODO make button remove appointment from database with confirmation?
         }
       });
 
@@ -250,8 +281,8 @@ public class AppointmentBookGwt implements EntryPoint {
     searchAppointmentVP.add(new Label("Owner's Name: "));
     searchAppointmentVP.add(searchingBookOwner);
 
-    HorizontalPanel startHP = makeDateTimePanel(new Label("After: "), searchAfterDate);
-    HorizontalPanel endHP = makeDateTimePanel(new Label("Before:"), searchBeforeDate);
+    HorizontalPanel startHP = makeDateTimePanel(new Label("After: "), searchAfterDate, new ListBox(), new ListBox(), new ListBox());
+    HorizontalPanel endHP = makeDateTimePanel(new Label("Before:"), searchBeforeDate, new ListBox(), new ListBox(), new ListBox());
 
     searchAppointmentVP.add(startHP);
     searchAppointmentVP.add(endHP);
@@ -295,7 +326,7 @@ public class AppointmentBookGwt implements EntryPoint {
   }
 
 
-  private HorizontalPanel makeDateTimePanel(Label w, DateBox dateBox) {
+  private HorizontalPanel makeDateTimePanel(Label w, DateBox dateBox, ListBox hours, ListBox minutes, ListBox ampm) {
     // Start range
     dateBox.setFormat(dateBoxDateTimeFormat);
     dateBox.setValue(new Date());
@@ -305,30 +336,31 @@ public class AppointmentBookGwt implements EntryPoint {
     hp.add(dateBox);
 
     // Start times list box
-    ListBox lbHours = new ListBox();
-    lbHours.addItem(String.valueOf(12), String.valueOf(12));
+    hours.addItem(String.valueOf(12), String.valueOf(12));
     for (int i = 1; i < 12; i++) {
       String time = NumberFormat.getFormat("00").format(i);
-      lbHours.addItem(time, time);
+      hours.addItem(time, time);
     }
-    hp.add(lbHours);
+    hp.add(hours);
     hp.add(new Label(":"));
 
-    ListBox lbMinutes = new ListBox();
     for (int i = 0; i < 60; i = i + 15) {
       String time = NumberFormat.getFormat("00").format(i);
-      lbMinutes.addItem(time, time);
+      minutes.addItem(time, time);
     }
-    hp.add(lbMinutes);
+    hp.add(minutes);
 
     // Start AMPM list box
-    ListBox ampm = new ListBox();
     ampm.addItem("AM", "AM");
     ampm.addItem("PM", "PM");
     hp.add(ampm);
     return hp;
   }
 
+
+  //TODO help and readme panel
+
+  //TODO delete or clear all appointment books
 
   /**
    * The interface Alerter.
