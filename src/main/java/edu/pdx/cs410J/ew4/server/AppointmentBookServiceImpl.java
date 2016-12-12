@@ -18,7 +18,7 @@ public class AppointmentBookServiceImpl extends RemoteServiceServlet implements 
   private ConcurrentHashMap<String, AppointmentBook> appointmentBooks = new ConcurrentHashMap<>();
 
 
-  // same kind of code as a in project 4 servlet
+
   @Override
   public AppointmentBook createAppointmentBook(int numberOfAppointments) {
     AppointmentBook book = new AppointmentBook();
