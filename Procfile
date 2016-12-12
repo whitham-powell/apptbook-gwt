@@ -1,1 +1,1 @@
-web: java $JAVA_OPTS -cp target/classes:target/dependency/* apptbook-gwt
+web: java $JAVA_OPTS -cp target/classes:target/dependency/* apptbook
