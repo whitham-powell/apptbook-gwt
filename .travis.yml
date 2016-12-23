@@ -3,3 +3,6 @@ jdk:
     - oraclejdk8
 script:
     "mvn test"
+addons:
+    code_climate:
+        repo_token: a785e12e4a911342bdd084cf8c1dd6f1242241bfaf3898ea3439bb49e2e19d4e
