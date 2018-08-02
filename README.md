@@ -16,3 +16,7 @@ After using one of the Maven build options you can view the application at:
 
 View a running application here:
 https://apptbook-gwt.herokuapp.com/
+
+
+Link to the REST version:
+https://github.com/whitham-powell/410J-REST
